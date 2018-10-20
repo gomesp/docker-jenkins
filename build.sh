@@ -1,0 +1,1 @@
+docker build -t pablo/jenkins:2.147-alpine .
