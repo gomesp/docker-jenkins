@@ -19,7 +19,3 @@ unclassified:
     smtpPort: 4441
     charset: UTF-8
     useSsl: false
-
-plugins:
-  required:
-    chucknorris: latest
