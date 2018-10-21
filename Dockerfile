@@ -2,11 +2,7 @@ FROM jenkins/jenkins:2.147-alpine
 
 USER jenkins
 # skip the jenkins wizard setup
-ENV JAVA_OPTS -Djenkins.install.runSetupWizard=false
-
-# set the environment variables for the default admin user (see init.groovy.d/default.user.groovy)
-ENV JENKINS_USER admin
-ENV JENKINS_PASS admin
+ENV JAVA_OPTS "-Djenkins.install.runSetupWizard=false -server -XX:+AlwaysPreTouch"
 
 # default groovy initialisation: set default user
 COPY init.groovy.d/* /usr/share/jenkins/ref/init.groovy.d/

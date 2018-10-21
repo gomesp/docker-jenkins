@@ -1,14 +1,27 @@
+#!groovy
+
 import jenkins.model.*
+import hudson.util.*
+import jenkins.install.*
 import hudson.security.*
 
-def env = System.getenv()
+def adminUsername = System.getenv('LOCAL_ADMIN') ?: 'admin'
+def adminPassword = System.getenv('LOCAL_PASSWORD') ?: 'password'
 
-def jenkins = Jenkins.getInstance()
-jenkins.setSecurityRealm(new HudsonPrivateSecurityRealm(false))
-jenkins.setAuthorizationStrategy(new GlobalMatrixAuthorizationStrategy())
+println "create account ${adminUsername} with ${adminPassword}"
+def instance = Jenkins.getInstance()
 
-def user = jenkins.getSecurityRealm().createAccount(env.JENKINS_USER, env.JENKINS_PASS)
+def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+instance.setSecurityRealm(hudsonRealm)
+def user = instance.getSecurityRealm().createAccount(adminUsername,adminPassword)
 user.save()
 
-jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, env.JENKINS_USER)
-jenkins.save()
+def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+strategy.setAllowAnonymousRead(true)
+instance.setAuthorizationStrategy(strategy)
+
+if (!instance.installState.isSetupComplete()) {
+  println '--> Neutering SetupWizard'
+  InstallState.INITIAL_SETUP_COMPLETED.initializeState()
+}
+instance.save()
